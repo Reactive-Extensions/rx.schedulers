@@ -1,0 +1,38 @@
+{
+  "name": "rx.schedulers",
+  "version": "1.0.0",
+  "description": "Standalone version of the RxJS schedulers",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/**/*.js | tap-spec && markdown-doctest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://mattpodwysocki:1157e270b43d276ab42f68933d8be41d8a93fa2b@github.com/Reactive-Extensions/rx.schedulers.git"
+  },
+  "keywords": [
+    "Rx",
+    "RxJS",
+    "Schedulers",
+    "Concurrency",
+    "requestAnimationFrame",
+    "nextTick",
+    "setImmediate"
+  ],
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Reactive-Extensions/rx.schedulers/issues"
+  },
+  "homepage": "https://github.com/Reactive-Extensions/rx.schedulers#readme",
+  "devDependencies": {
+    "markdown-doctest": "^0.3.0",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.4.0"
+  },
+  "dependencies": {
+    "inherits": "^2.0.1",
+    "rx.disposables": "^1.0.0",
+    "rx.priorityqueue": "^1.0.1"
+  }
+}
