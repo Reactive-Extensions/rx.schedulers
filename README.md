@@ -1,128 +1,123 @@
-[![Build Status](https://travis-ci.org/Reactive-Extensions/rx.disposables.svg)](https://travis-ci.org/Reactive-Extensions/rx.disposables)
-[![GitHub version](https://img.shields.io/github/tag/reactive-extensions/rx.disposables.svg)](https://github.com/Reactive-Extensions/rx.disposables)
-[![NPM version](https://img.shields.io/npm/v/rx.disposables.svg)](https://www.npmjs.com/package/rx.disposables)
-[![Downloads](https://img.shields.io/npm/dm/rx.disposables.svg)](https://www.npmjs.com/package/rx.disposables)
-# `rx.disposables` - RxJS disposables
+[![Build Status](https://travis-ci.org/Reactive-Extensions/rx.schedulers.svg)](https://travis-ci.org/Reactive-Extensions/rx.schedulers)
+[![GitHub version](https://img.shields.io/github/tag/reactive-extensions/rx.schedulers.svg)](https://github.com/Reactive-Extensions/rx.schedulers)
+[![NPM version](https://img.shields.io/npm/v/rx.schedulers.svg)](https://www.npmjs.com/package/rx.schedulers)
+[![Downloads](https://img.shields.io/npm/dm/rx.schedulers.svg)](https://www.npmjs.com/package/rx.schedulers)
+# `rx.schedulers` - RxJS Schedulers
 
-This is a standalone version of the RxJS disposable classes which can manage the lifetime of any given resource.
+This is a standalone version of the RxJS scheduler classes which can schedule work both now and in the future with relative and absolute time. This allows for scheduling in virtual time with both historical and virtual time.
 
 This includes the following disposables with their documentation:
-- [`BinaryDisposable`](doc/binarydisposable);
-- [`CompositeDisposable`](doc/compositedisposable.md)
-- [`Disposable`](doc/disposable.md)
-- [`NAryDisposable`](doc/narydisposable.md)
-- [`SerialDisposable`](doc/serialdisposable.md)
-- [`SingleAssignmentDisposable`](doc/singleassignmentdisposable)
+- [`AnimationScheduler`](doc/animationscheduler)
+- [`AsyncScheduler`](doc/asyncscheduler)
+- [`HistoricalScheduler`](doc/historicalscheduler.md)
+- [`QueueScheduler`](doc/queuescheduler.md)
+- [`Scheduler`](doc/scheduler.md)
+- [`SyncScheduler`](doc/syncscheduler.md)
+- [`VirtualTimeScheduler`](doc/virtualtimescheduler)
 
 ## Installation
 
-The `rx.disposables` library can be installed by the following:
+The `rx.schedulers` library can be installed by the following:
 
 ### NPM
 ```bash
-$ npm install rx.disposables
+$ npm install rx.schedulers
 ```
 
 ## Usage
 
-Here is some basic usage a simple `Disposable` to handle resources:
-```js
-const Disposable = require('rx.disposables').Disposable;
-
-// Imagine this to be some sort of resource
-let isDisposed = false;
-const d = Disposable.create(() => isDisposed = true);
-
-d.dispose();
-console.log(`isDisposed is ${isDisposed}`);
-// => isDisposed is true
-```
-
-There may be some instances when you want the disposable to be ref counted so that it only disposes when all dependent observables have been disposed, for example a file handle.
+Here is some basic usage a simple `AsyncScheduler` to schedule some work asynchronously as soon as possible.
 
 ```js
-const d = require('rx.disposables');
+const AsyncScheduler = require('rx.schedulers').AsyncScheduler;
 
-// Imagine this to be a resource
-let isDisposed = false;
-const dd = d.Disposable.create(() => isDisposed = true);
+const scheduler = new AsyncScheduler();
 
-const r = new d.RefCountDisposable(dd);
-
-// Make two references
-const d1 = r.getDisposable();
-const d2 = r.getDisposable();
-
-// Clean up each
-d1.dispose();
-d2.dispose();
-
-// Now we can clean up now that ref count went to zero
-r.dispose();
-console.log(`isDisposed is ${isDisposed}`);
-// => isDisposed is true
+// Schedule work async as soon as possible
+const disposable = scheduler.schedule('hello world', function (scheduler, state) {
+  console.log(state);
+});
+// => hello world
 ```
 
-We can also handle collections in multiple ways, either with the immutable disposables such as the `BinaryDisposable` for handling two disposables, and `NAryDisposable` for handling arrays.  If you wish to add and remove disposables from a list, you can use the `CompositeDisposable`.
+We can also schedule work in the future with relative time, such as 5 seconds from now.
 
 ```js
-const d = require('rx.disposables');
+const AsyncScheduler = require('rx.schedulers').AsyncScheduler;
 
-const d1 = d.Disposable.create(() => console.log('one'));
-const d2 = d.Disposable.create(() => console.log('two'));
+const scheduler = new AsyncScheduler();
 
-const c = new d.CompositeDisposable(d1, d2);
-
-const d3 = d.Disposable.create(() => console.log('three'));
-c.add(d3);
-
-c.remove(d3);
-// => three
-
-c.dispose();
-// => one
-// => two
+// Schedule work async as soon as possible
+const disposable = scheduler.scheduleFuture('hello world', 5000, function (scheduler, state) {
+  console.log(state);
+});
+// => hello world
 ```
 
-There may also be times when you need to set the disposable later, so you can manage it in a container such as the `SingleAssignmentDisposable` for handling only one assignment, and the `SerialDisposable` which disposes the previous and sets the new disposable if the `SerialDisposable` has not been disposed.
-
-For example, we could set it later using the `SingleAssignmentDisposable`:
+We can also schedule work in the future with relative time, such as 5 seconds from now.
 
 ```js
-const d = require('rx.disposables');
+const AsyncScheduler = require('rx.schedulers').AsyncScheduler;
 
-const sad = new d.SingleAssignmentDisposable();
+const scheduler = new AsyncScheduler();
 
-const d1 = d.Disposable.create(() => console.log('one'));
-
-// Set the disposable later
-sad.setDisposable(d1);
-
-sad.dispose();
-// => one
+// Schedule work async as soon as possible
+const disposable = scheduler.scheduleFuture('hello world', 5000, function (scheduler, state) {
+  console.log(state);
+});
+// => hello world
 ```
 
-And we could also use the `SerialDisposable` if we have the need to swap out our disposable:
-
+We can also schedule recursively, for example if we want to execute an item 10 times, we can do the following code.  Note that we can also schedule recursively in the future using absolute and relative time much as we did above.
 ```js
-const d = require('rx.disposables');
+const AsyncScheduler = require('rx.schedulers').AsyncScheduler;
 
-const sd = new d.SerialDisposable();
+const scheduler = new AsyncScheduler();
 
-const d1 = d.Disposable.create(() => console.log('one'));
-
-// Set the disposable later
-sd.setDisposable(d1);
-
-const d2 = d.Disposable.create(() => console.log('two'));
-
-// Replace the disposable
-sd.setDisposable(d2);
-// => one
-
-sd.dispose();
-// => two
+scheduler.scheduleRecursive(0, (state, recurse) => {
+  if (state < 10) {
+    console.log(`State is ${state}`);
+    recurse(state + 1);
+  }
+});
+/*
+State is 0
+State is 1
+State is 2
+State is 3
+State is 4
+State is 5
+State is 6
+State is 7
+State is 8
+State is 9
+*/
 ```
+
+We can also schedule items periodically using the `schedulePeriodic` method:
+```js
+const AsyncScheduler = require('rx.schedulers').AsyncScheduler;
+const scheduler = new AsyncScheduler();
+
+const disposable = scheduler.schedulePeriodic(
+  0,
+  1000, /* 1 second */
+  (i) => {
+    console.log(i);
+
+    // After three times, dispose
+    if (++i > 3) { disposable.dispose(); }
+
+    return i;
+});
+
+// => 0
+// => 1
+// => 2
+// => 3
+```
+
+There are plenty more options available by reading the documentation linked above.
 
 ## Contributing
 
