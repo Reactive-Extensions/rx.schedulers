@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://mattpodwysocki:1157e270b43d276ab42f68933d8be41d8a93fa2b@github.com/Reactive-Extensions/rx.schedulers.git"
+    "url": "git+https://github.com/Reactive-Extensions/rx.schedulers.git"
   },
   "keywords": [
     "Rx",
