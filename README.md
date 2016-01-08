@@ -47,21 +47,7 @@ const AsyncScheduler = require('rx.schedulers').AsyncScheduler;
 
 const scheduler = new AsyncScheduler();
 
-// Schedule work async as soon as possible
-const disposable = scheduler.scheduleFuture('hello world', 5000, function (scheduler, state) {
-  console.log(state);
-});
-// => hello world
-```
-
-We can also schedule work in the future with relative time, such as 5 seconds from now.
-
-```js
-const AsyncScheduler = require('rx.schedulers').AsyncScheduler;
-
-const scheduler = new AsyncScheduler();
-
-// Schedule work async as soon as possible
+// Schedule work async after 5 seconds
 const disposable = scheduler.scheduleFuture('hello world', 5000, function (scheduler, state) {
   console.log(state);
 });
